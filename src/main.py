@@ -16,10 +16,17 @@ for i in range(N):
 # Packet generation /  define destination / define in which slot is generated / define the destination
 def generatePacket(whichNode):
     if not nodes[whichNode].isFull:     # check if buffer is full
-        decission = random.uniform(0, b)
-        if decission >= whichNode*l and decission <= (whichNode+1)*l:   # generate with probability l
-            decission = random.randint(0, N-2)
-            destinationNode = decission if decission != whichNode else decission + 1    # transmit to all nodes with same probability except the same node, where the probability is 0
+        decision = random.uniform(0, b)
+        if decision >= whichNode*l and decision <= (whichNode+1)*l:   # generate with probability l
+            decision = random.randint(0, N-2)
+            destinationNode = decision if decision != whichNode else decision + 1    # transmit to all nodes with same probability except the same node, where the probability is 0
             node[whichNode].addPacket(slot, destinationNode)
+
+def endOfPacketTransmition(whichNode, indexP):
+    nodes[whichNode].deliverPacket(slot, indexP)
+
+def packetLeavesTheSys(whichNode, indexP):
+    node[whichNode].removePacket(indexP)
+
 
 slot = 0

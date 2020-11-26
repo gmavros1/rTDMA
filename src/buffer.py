@@ -16,8 +16,8 @@ class Buffer:
     def addPacket(self, si, nd):
         packets.append(Packet(si, nd))
 
-    def removePacket_delivered(self, index):
+    def removePacket(self, index):
         packets.remove(index)
 
-    def deliverPacket(self, sf):
-        packets.slotFinal = sf
+    def deliverPacket(self, sf, index):
+        packets[index].slotFinal = sf
