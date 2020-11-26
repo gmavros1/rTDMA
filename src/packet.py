@@ -5,6 +5,5 @@ class Packet:
 
    def __init__(self, si, sf, nd):
        self.slotInit = si
-       self.slotFinal = sf
        self.nodeDest = nd
 
