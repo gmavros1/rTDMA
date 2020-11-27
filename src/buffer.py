@@ -8,16 +8,16 @@ class Buffer:
         self.li = l
 
     def isBusy(self):
-        return len(packets) > 1
+        return len(self.packets) > 1
 
     def isFull(self):
-        return len(packets) >= li
+        return len(self.packets) >= self.li
 
     def addPacket(self, si, nd):
-        packets.append(Packet(si, nd))
+        self.packets.append(Packet(si, nd))
 
     def removePacket(self, index):
-        packets.remove(index)
+        self.packets.pop(index)
 
     def deliverPacket(self, sf, index):
-        packets[index].slotFinal = sf
+        self.packets[index].slotFinal = sf

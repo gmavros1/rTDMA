@@ -1,9 +1,9 @@
 class Packet:
    slotInit = 0
-   slotFInal = 0
+   slotFinal = 0
    nodeDest = 0
 
-   def __init__(self, si, sf, nd):
+   def __init__(self, si,  nd):
        self.slotInit = si
        self.nodeDest = nd
 

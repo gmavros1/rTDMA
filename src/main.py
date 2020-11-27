@@ -11,16 +11,18 @@ nodes = []  # Nodes
  
 # generate N nodes with buffer capacity --> i+1
 for i in range(N):
-    nodes.append(Buffer(i+1)) 
+    nodes.append(Buffer(i+1))
+
+
 
 # Packet generation /  define destination / define in which slot is generated / define the destination
 def generatePacket(whichNode, slot):
-    if not nodes[whichNode].isFull:     # check if buffer is full
+    if not nodes[whichNode].isFull():     # check if buffer is full
         decision = random.uniform(0, b)
         if decision >= whichNode*l and decision <= (whichNode+1)*l:   # generate with probability l
             decision = random.randint(0, N-2)
             destinationNode = decision if decision != whichNode else decision + 1    # transmit to all nodes with same probability except the same node, where the probability is 0
-            node[whichNode].addPacket(slot, destinationNode)
+            nodes[whichNode].addPacket(slot, destinationNode)
 
 # Finale slot of packet declared
 def endOfPacketTransmition(whichNode, indexP, slot):
@@ -28,7 +30,7 @@ def endOfPacketTransmition(whichNode, indexP, slot):
 
 # Packet leaves the buffer and the system
 def packetLeavesTheSys(whichNode, indexP):
-    node[whichNode].removePacket(indexP)
+    nodes[whichNode].removePacket(indexP)
             
 
 #*** *** The rTDMA Protocol *** ***#
@@ -54,7 +56,7 @@ for i in range(W):
 
 
 # Running the simulation for n slots
-n = 10
+n = 1000
 for slot in range (n):
 
     # Ak = A.copy() # We want the A set unchanged in the beggining of every slot
@@ -98,8 +100,18 @@ for slot in range (n):
         for r in Ak:
             if i in r:
                 r.remove(i)
-
-    # choose which packets is going to transmit
-    for i in range(len(trans)):
-        pass
+    
+    # choose which packets is going to transmit / declare final slot of packet / remove paclet from system
+    for i in range(len(nodes)):
+        if trans[i] == 0:
+            continue
+        else:   
+            indexOfPacket = 0
+            for j in nodes[i].packets:  # nodes --> buffer of every node
+                if  j.nodeDest in B[trans[i]]:   # if the destination of the packet is in the set B[k]
+                    endOfPacketTransmition(i, indexOfPacket, slot) # the slot that packet leaves the system declared
+                    print("Diff : ", j.slotFinal - j.slotInit)
+                    packetLeavesTheSys(i, indexOfPacket)
+                indexOfPacket += 1 
+                        
 
