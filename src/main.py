@@ -1,11 +1,17 @@
 from buffer import Buffer
+from statisticsRtdma import Statistics
 import random
 
 N = 8  # Number of Nodes /
 W = 4  # Number of channel (Wavelengths) /
 d = 1 / (N - 1)  # transmition probability /
-b = 0.8  # sum of packet-generation probabilities /
+b = 1  # sum of packet-generation probabilities /
 l = b / N  # generation-packets probability /
+
+# statistic stuff
+stat = Statistics()
+averageDelay = 0
+TP = 0
 
 nodes = []  # Nodes
 
@@ -22,7 +28,7 @@ def generatePacket(Node, index, slot):
             decision = random.randint(0, N - 2)  # to choose destination
             destinationNode = decision if decision != index else decision + 1  # transmit to all nodes with same probability except the same node, where the probability is 0
             Node.addPacket(slot, destinationNode)
-            print("packet generated. From : ", index, "To : ", destinationNode)
+            # print("packet generated. From : ", index, "To : ", destinationNode)
 
 
 # Finale slot of packet declared
@@ -56,10 +62,10 @@ for i in range(W):
         nds = nds + 1
 
 # Running the simulation for n slots
-n = 10
+n = 100
 for slot in range(n):
 
-    print("\n\n Slot : ", slot, "\n\n")
+    # print("\n\n Slot : ", slot, "\n\n")
 
     # Ak = A.copy() # We want A set to remain unchanged in the beggining of every slot
     Ak = []
@@ -77,13 +83,13 @@ for slot in range(n):
         index += 1
 
     #### debug ###
-
-    for nd in range(len(nodes)):
-        print("Node : ", nd, "\n")
-        for p in range(len(nodes[nd].packets)):
-            print("     Capacity : ", nodes[nd].li)
-            print("     Packets : ", len(nodes[nd].packets))
-            print("     Destination : ", nodes[nd].packets[p].nodeDest)
+    #
+    # for nd in range(len(nodes)):
+    #    print("Node : ", nd, "\n")
+    #    for p in range(len(nodes[nd].packets)):
+    #        print("     Capacity : ", nodes[nd].li)
+    #        print("     Packets : ", len(nodes[nd].packets))
+    #        print("     Destination : ", nodes[nd].packets[p].nodeDest)
 
     ### debug ###
 
@@ -100,7 +106,7 @@ for slot in range(n):
         channels.append(i)  # [ channel0, channel1, ..., channeN-1 ]
 
     while len(channels) != 0:
-        # 2. select a random chanel k and remove k from set channels 
+        # 2. select a random chanel k and remove k from set channels
         k = channels.pop(random.randint(0, len(channels) - 1))
 
         # 3. select a random node from set A[k]
@@ -112,12 +118,12 @@ for slot in range(n):
             if i in r:
                 r.remove(i)
 
-    print("\n\n", trans, "\n\n")
+    # print("\n\n", trans, "\n\n")
 
     # choose which packets is going to transmit / declare final slot of packet / remove paclet from system
     for i in range(len(nodes)):
-        if trans[
-            i] == -1:  # because 0 is in use / node i have permission to transmit in channel k (-1 ==> have no permission)
+        if trans[i] == -1:  # because 0 is in use / node i have permission to transmit in channel k (-1 ==> have no
+            # permission)
             continue
         else:
             indexOfPacket = 0
@@ -125,6 +131,20 @@ for slot in range(n):
                 if j.nodeDest in B[trans[i]]:  # if the destination of the packet is in the set B[k]
                     endOfPacketTransmition(nodes[i], indexOfPacket,
                                            slot)  # the slot that packet leaves the system declared
-                    print("Diff : ", j.slotFinal - j.slotInit)
+                    # print("Packet transmited")
+                    # print("Diff : ", j.slotFinal - j.slotInit)
+                    averageDelay += j.slotFinal - j.slotInit  # Delay
                     packetLeavesTheSys(nodes[i], indexOfPacket)
+                    TP += 1  # packets transmited
                 indexOfPacket += 1
+
+    # plot
+    stat.x.append(TP / (n + 1))
+    stat.y.append(averageDelay / (n + 1))
+
+# Print average Delay of packet transmition
+averageDelay = averageDelay / (n + 1)
+TP = TP / (n + 1)
+print("Average Delay : ", averageDelay, "slots")
+print("TP : ", TP)
+stat.plot()
