@@ -18,6 +18,11 @@ nodes = []  # Nodes
 # generate N nodes with buffer capacity --> i+1
 for i in range(N):
     nodes.append(Buffer(i + 1))
+    #nodes.append(Buffer(4))
+
+
+def probsGenerator(bufferIndex):
+    pass
 
 
 # Packet generation /  define destination / define in which slot is generated / define the destination
@@ -62,7 +67,7 @@ for i in range(W):
         nds = nds + 1
 
 # Running the simulation for n slots
-n = 100
+n = 25
 for slot in range(n):
 
     # print("\n\n Slot : ", slot, "\n\n")
@@ -147,4 +152,5 @@ averageDelay = averageDelay / (n + 1)
 TP = TP / (n + 1)
 print("Average Delay : ", averageDelay, "slots")
 print("TP : ", TP)
+
 stat.plot()
