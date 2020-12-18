@@ -1,12 +1,15 @@
 from buffer import Buffer
 from statisticsRtdma import Statistics
+from numpy.random import choice
 import random
+
+# import sys
 
 N = 8  # Number of Nodes /
 W = 4  # Number of channel (Wavelengths) /
-d = 1 / (N - 1)  # transmition probability /
+d = 1 / (N - 1)  # transmission probability /
 b = 1  # sum of packet-generation probabilities /
-l = b / N  # generation-packets probability /
+li = b / 36  # generation-packets probability /
 
 # statistic stuff
 stat = Statistics()
@@ -18,23 +21,35 @@ nodes = []  # Nodes
 # generate N nodes with buffer capacity --> i+1
 for i in range(N):
     nodes.append(Buffer(i + 1))
+    # nodes.append(Buffer(4))
+
+
+def probGenerator(bufferIndex, prob):
+    return random.random() <= (bufferIndex + 1) * prob
+
+
+def dimGeneraor(bufferIndex):
+    Ms = list(range(N))
+    Ms.pop(index)
+    mProbs = [k * (1 / ((N * (N + 1)) / (bufferIndex + 1))) for k in Ms]
+    destination = choice(Ms, 1, mProbs)
+    return destination[0]
 
 
 # Packet generation /  define destination / define in which slot is generated / define the destination
-def generatePacket(Node, index, slot):
-    if not Node.isFull():  # check if buffer is full
-        decision = random.uniform(0, b)  # to be or not to be generated
-        if decision >= index * l and decision <= (index + 1) * l:  # generate with probability l
-            decision = random.randint(0, N - 2)  # to choose destination
-            destinationNode = decision if decision != index else decision + 1  # transmit to all nodes with same probability except the same node, where the probability is 0
-            Node.addPacket(slot, destinationNode)
-            # print("packet generated. From : ", index, "To : ", destinationNode)
+def generatePacket(Node, bufferIndex, whichSlot):
+    if not Node.isFull():
+        if probGenerator(bufferIndex, li):
+            destinationNode = dimGeneraor(
+                bufferIndex)  # transmit to all nodes with same probability except the same node, where the
+            # probability is 0
+            Node.addPacket(whichSlot, destinationNode)
 
 
 # Finale slot of packet declared
 # Index P --> index of packet
-def endOfPacketTransmition(Node, indexP, slot):
-    Node.deliverPacket(slot, indexP)
+def endOfPacketTransmition(Node, indexP, whichSlot):
+    Node.deliverPacket(whichSlot, indexP)
 
 
 # Packet leaves the buffer and the system
@@ -51,7 +66,7 @@ for i in range(W):
     for j in range(N):
         A[i].append(j)
 
-# which nodecan receive according to channel
+# which node can receive according to channel
 B = []  # B[i] = {1,2} --> nodes  1,2 can receive from channel i
 nds = 0  # nodes in each set
 for i in range(W):
@@ -62,7 +77,8 @@ for i in range(W):
         nds = nds + 1
 
 # Running the simulation for n slots
-n = 100
+# n = int(sys.argv[1])
+n = 400
 for slot in range(n):
 
     # print("\n\n Slot : ", slot, "\n\n")
@@ -82,23 +98,21 @@ for slot in range(n):
         generatePacket(nd, index, slot)
         index += 1
 
-    #### debug ###
-    #
-    # for nd in range(len(nodes)):
-    #    print("Node : ", nd, "\n")
-    #    for p in range(len(nodes[nd].packets)):
-    #        print("     Capacity : ", nodes[nd].li)
-    #        print("     Packets : ", len(nodes[nd].packets))
-    #        print("     Destination : ", nodes[nd].packets[p].nodeDest)
-
-    ### debug ###
+    # debug
+    print("\n\n")
+    for nd in range(len(nodes)):
+        print("Node : ", nd, "\n")
+        for p in range(len(nodes[nd].packets)):
+            print("     Capacity : ", nodes[nd].li)
+            print("     Packets : ", len(nodes[nd].packets))
+            print("     Destination : ", nodes[nd].packets[p].nodeDest)
 
     # trans[i] = k
     trans = []
     for i in range(N):
         trans.append(-1)  # Initialize trans[i] = -1
 
-    # Trans[k] colision free algorithm
+    # Trans[k] collision free algorithm
 
     # 1. Set of Channels
     channels = []
@@ -120,7 +134,7 @@ for slot in range(n):
 
     # print("\n\n", trans, "\n\n")
 
-    # choose which packets is going to transmit / declare final slot of packet / remove paclet from system
+    # choose which packets is going to transmit / declare final slot of packet / remove packet from system
     for i in range(len(nodes)):
         if trans[i] == -1:  # because 0 is in use / node i have permission to transmit in channel k (-1 ==> have no
             # permission)
@@ -147,4 +161,6 @@ averageDelay = averageDelay / (n + 1)
 TP = TP / (n + 1)
 print("Average Delay : ", averageDelay, "slots")
 print("TP : ", TP)
+print("slots : ", n)
+
 stat.plot()
