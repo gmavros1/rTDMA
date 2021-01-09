@@ -9,7 +9,7 @@ N = 8  # Number of Nodes /
 W = 4  # Number of channel (Wavelengths) /
 d = 1 / (N - 1)  # transmission probability /
 b = 1  # sum of packet-generation probabilities /
-li = b / 36  # generation-packets probability /
+li = b / N  # generation-packets probability /
 
 # statistic stuff
 stat = Statistics()
@@ -32,7 +32,8 @@ def probGenerator(bufferIndex, prob):
 def dimGeneraor(bufferIndex):
     Ms = list(range(N))
     Ms.pop(bufferIndex)
-    mProbs = [k * (1 / ((N * (N + 1)) / (bufferIndex + 1))) for k in Ms] # probability matrix for every dest
+    # mProbs = [k * (1 / ((N * (N + 1)) / (bufferIndex + 1))) for k in Ms] # probability matrix for every dest
+    mProbs = [1/(N-1) for k in Ms]  # probability matrix for every dest
     destination = choice(Ms, 1, mProbs)
     return destination[0]
 
@@ -79,7 +80,7 @@ for i in range(W):
 
 # Running the simulation for n slots
 # n = int(sys.argv[1])
-n = 100
+n = 1000000
 for slot in range(n):
 
     # print("\n\n Slot : ", slot, "\n\n")
@@ -158,9 +159,9 @@ for slot in range(n):
 
     # plot
 
-    if slot%8 == 0:
-        stat.x.append(TP / (n + 1))  # Avarage number of transmited packets per slot
-        stat.y.append(averageDelay / (n + 1))
+    if slot%2 == 0:
+        stat.x.append(TP / (slot + 1))  # Avarage number of transmited packets per slot
+        stat.y.append(averageDelay / (slot + 1))
 
 # Print average Delay of packet transmition
 averageDelay = averageDelay / (n + 1)
