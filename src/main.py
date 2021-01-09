@@ -28,10 +28,11 @@ def probGenerator(bufferIndex, prob):
     return random.random() <= (bufferIndex + 1) * prob
 
 
+# returns the index of the destination node
 def dimGeneraor(bufferIndex):
     Ms = list(range(N))
-    Ms.pop(index)
-    mProbs = [k * (1 / ((N * (N + 1)) / (bufferIndex + 1))) for k in Ms]
+    Ms.pop(bufferIndex)
+    mProbs = [k * (1 / ((N * (N + 1)) / (bufferIndex + 1))) for k in Ms] # probability matrix for every dest
     destination = choice(Ms, 1, mProbs)
     return destination[0]
 
@@ -78,19 +79,11 @@ for i in range(W):
 
 # Running the simulation for n slots
 # n = int(sys.argv[1])
-n = 400
+n = 100
 for slot in range(n):
 
     # print("\n\n Slot : ", slot, "\n\n")
 
-    # Ak = A.copy() # We want A set to remain unchanged in the beggining of every slot
-    Ak = []
-    count = 0
-    for aa in A:
-        Ak.append([])
-        for aaaa in aa:
-            Ak[count].append(aaaa)
-        count += 1
 
     # Genarate packets
     index = 0
@@ -112,9 +105,20 @@ for slot in range(n):
     for i in range(N):
         trans.append(-1)  # Initialize trans[i] = -1
 
-    # Trans[k] collision free algorithm
+    # Trans[k] collision free algorithm -------------------------------------------
 
-    # 1. Set of Channels
+    # 1. Set of Channels and A set
+
+    # Ak = A.copy() # We want A set to remain unchanged in the beggining of every slot
+    Ak = []
+    count = 0
+    for aa in A:
+        Ak.append([])
+        for aaaa in aa:
+            Ak[count].append(aaaa)
+        count += 1
+
+    # Ω set
     channels = []
     for i in range(W):
         channels.append(i)  # [ channel0, channel1, ..., channeN-1 ]
@@ -142,7 +146,7 @@ for slot in range(n):
         else:
             indexOfPacket = 0
             for j in nodes[i].packets:  # nodes --> buffer of every node
-                if j.nodeDest in B[trans[i]]:  # if the destination of the packet is in the set B[k]
+                if j.nodeDest in B[trans[i]]:  # if the destination of the packet (of node i) is in the set B[k]
                     endOfPacketTransmition(nodes[i], indexOfPacket,
                                            slot)  # the slot that packet leaves the system declared
                     # print("Packet transmited")
@@ -153,8 +157,10 @@ for slot in range(n):
                 indexOfPacket += 1
 
     # plot
-    stat.x.append(TP / (n + 1))
-    stat.y.append(averageDelay / (n + 1))
+
+    if slot%8 == 0:
+        stat.x.append(TP / (n + 1))  # Avarage number of transmited packets per slot
+        stat.y.append(averageDelay / (n + 1))
 
 # Print average Delay of packet transmition
 averageDelay = averageDelay / (n + 1)
