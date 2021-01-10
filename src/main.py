@@ -1,6 +1,7 @@
 from buffer import Buffer
 from statisticsRtdma import Statistics
 from numpy.random import choice
+import os
 import random
 
 # import sys
@@ -9,7 +10,7 @@ N = 8  # Number of Nodes /
 W = 4  # Number of channel (Wavelengths) /
 d = 1 / (N - 1)  # transmission probability /
 b = 1  # sum of packet-generation probabilities /
-li = b / N  # generation-packets probability /
+li = b / 36  # generation-packets probability /
 
 # statistic stuff
 stat = Statistics()
@@ -20,20 +21,20 @@ nodes = []  # Nodes
 
 # generate N nodes with buffer capacity --> i+1
 for i in range(N):
-    nodes.append(Buffer(i + 1))
-    # nodes.append(Buffer(4))
+    # nodes.append(Buffer(i + 1))
+     nodes.append(Buffer(4))
 
 
 def probGenerator(bufferIndex, prob):
     return random.random() <= (bufferIndex + 1) * prob
-
+    # return random.random() <=  prob
 
 # returns the index of the destination node
 def dimGeneraor(bufferIndex):
     Ms = list(range(N))
     Ms.pop(bufferIndex)
-    # mProbs = [k * (1 / ((N * (N + 1)) / (bufferIndex + 1))) for k in Ms] # probability matrix for every dest
-    mProbs = [1/(N-1) for k in Ms]  # probability matrix for every dest
+    mProbs = [m/(((N*(N+1))/2)-(bufferIndex+1)) for m in Ms] # probability matrix for every dest
+    # mProbs = [1/(N-1) for k in Ms]  # probability matrix for every dest
     destination = choice(Ms, 1, mProbs)
     return destination[0]
 
@@ -80,7 +81,7 @@ for i in range(W):
 
 # Running the simulation for n slots
 # n = int(sys.argv[1])
-n = 1000000
+n = 100000
 for slot in range(n):
 
     # print("\n\n Slot : ", slot, "\n\n")
@@ -93,13 +94,13 @@ for slot in range(n):
         index += 1
 
     # debug
-    print("\n\n")
-    for nd in range(len(nodes)):
-        print("Node : ", nd, "\n")
-        for p in range(len(nodes[nd].packets)):
-            print("     Capacity : ", nodes[nd].li)
-            print("     Packets : ", len(nodes[nd].packets))
-            print("     Destination : ", nodes[nd].packets[p].nodeDest)
+    #print("\n\n")
+    #for nd in range(len(nodes)):
+    #    print("Node : ", nd, "\n")
+    #    for p in range(len(nodes[nd].packets)):
+    #        print("     Capacity : ", nodes[nd].li)
+    #        print("     Packets : ", len(nodes[nd].packets))
+    #        print("     Destination : ", nodes[nd].packets[p].nodeDest)
 
     # trans[i] = k
     trans = []
@@ -159,9 +160,14 @@ for slot in range(n):
 
     # plot
 
-    if slot%2 == 0:
+
+    if slot%4 == 0:
         stat.x.append(TP / (slot + 1))  # Avarage number of transmited packets per slot
         stat.y.append(averageDelay / (slot + 1))
+
+    # feedback
+    #os.system("clear")
+    print((slot / n) * 100, "%")
 
 # Print average Delay of packet transmition
 averageDelay = averageDelay / (n + 1)
