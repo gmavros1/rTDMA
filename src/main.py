@@ -61,6 +61,10 @@ def endOfPacketTransmition(Node, indexP, whichSlot):
 def packetLeavesTheSys(Node, indexP):
     Node.removePacket(indexP)
 
+def showStatus():
+    print("\t\tPacket  |  dest")
+
+
 
 # *** *** The rTDMA Protocol *** ***#
 
@@ -83,7 +87,7 @@ for i in range(W):
 
 # Running the simulation for n slots
 # n = int(sys.argv[1])
-n = 10
+n = 50
 for slot in range(n):
 
     print("\n\n Slot : ", slot, "\n")
@@ -151,13 +155,13 @@ for slot in range(n):
                     averageDelay += j.slotFinal - j.slotInit  # Delay
                     packetLeavesTheSys(nodes[i], indexOfPacket)
                     TP += 1  # packets transmited
-                    break
+                    break # each node transmit once in a slot
                 indexOfPacket += 1
 
     # plot
 
 
-    if slot%1 == 0:
+    if slot%8 == 0:
         stat.x.append(TP / (slot + 1))  # Avarage number of transmited packets per slot
         stat.y.append(averageDelay / (slot + 1))
 
