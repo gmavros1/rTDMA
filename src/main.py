@@ -3,6 +3,20 @@ from statisticsRtdma import Statistics
 from numpy.random import choice
 import os
 import random
+#from tqdm import tqdm
+import curses
+
+# progress bar
+#curses.initscr()
+def update_progress(progress):
+    win = curses.newwin(3, 32, 3, 30)
+    win.border(0)
+    rangex = (30 / float(100)) * progress
+    pos = int(rangex)
+    display = '#'
+    if pos != 0:
+        win.addstr(1, 1, "{}".format(display * pos))
+        win.refresh()
 
 # import sys
 
@@ -22,19 +36,19 @@ nodes = []  # Nodes
 
 # generate N nodes with buffer capacity --> i+1
 for i in range(N):
-    # nodes.append(Buffer(i + 1))
-     nodes.append(Buffer(4))
+    #nodes.append(Buffer(i + 1))
+    nodes.append(Buffer(4))
 
 
 def probGenerator(bufferIndex, prob):
-    return random.random() <= (bufferIndex + 1) * prob
-    # return random.random() <=  prob
+    #return random.random() <= (bufferIndex + 1) * prob
+    return random.random() <=  prob
 
 # returns the index of the destination node
 def dimGeneraor(bufferIndex):
     Ms = list(range(N))
     Ms.pop(bufferIndex)
-    # mProbs = [m/(((N*(N+1))/2)-(bufferIndex+1)) for m in Ms] # probability matrix for every dest
+    #mProbs = [m/(((N*(N+1))/2)-(bufferIndex+1)) for m in Ms] # probability matrix for every dest
     mProbs = [1/(N-1) for k in Ms]  # probability matrix for every dest
     destination = choice(Ms, 1, mProbs)
     return destination[0]
@@ -87,7 +101,8 @@ for i in range(W):
 
 # Running the simulation for n slots
 # n = int(sys.argv[1])
-n = 50
+os.system("clear")
+n = 10000
 for slot in range(n):
 
     print("\n\n Slot : ", slot, "\n")
@@ -161,17 +176,19 @@ for slot in range(n):
     # plot
 
 
-    if slot%8 == 0:
+    if slot%4 == 0:
         stat.x.append(TP / (slot + 1))  # Avarage number of transmited packets per slot
         stat.y.append(averageDelay / (slot + 1))
 
     # feedback
     print("\n")
+    #update_progress((slot / n) * 100)
     #os.system("clear")
     #print("RTDMA validation -  SYSTEM 3")
     #print("****************************")
     #print((slot / n) * 100, "%")
     #os.system("clear")
+
 
 # Print average Delay of packet transmition
 averageDelay = averageDelay / (n + 1)
@@ -181,3 +198,7 @@ print("TP : ", TP)
 print("slots : ", n)
 
 stat.plot()
+
+
+
+
