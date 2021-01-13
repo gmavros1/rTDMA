@@ -10,7 +10,8 @@ N = 8  # Number of Nodes /
 W = 4  # Number of channel (Wavelengths) /
 d = 1 / (N - 1)  # transmission probability /
 b = 1  # sum of packet-generation probabilities /
-li = b / 36  # generation-packets probability /
+#li = b / 36  # generation-packets probability /
+li = b / N  # generation-packets probability /
 
 # statistic stuff
 stat = Statistics()
@@ -33,8 +34,8 @@ def probGenerator(bufferIndex, prob):
 def dimGeneraor(bufferIndex):
     Ms = list(range(N))
     Ms.pop(bufferIndex)
-    mProbs = [m/(((N*(N+1))/2)-(bufferIndex+1)) for m in Ms] # probability matrix for every dest
-    # mProbs = [1/(N-1) for k in Ms]  # probability matrix for every dest
+    # mProbs = [m/(((N*(N+1))/2)-(bufferIndex+1)) for m in Ms] # probability matrix for every dest
+    mProbs = [1/(N-1) for k in Ms]  # probability matrix for every dest
     destination = choice(Ms, 1, mProbs)
     return destination[0]
 
@@ -47,6 +48,7 @@ def generatePacket(Node, bufferIndex, whichSlot):
                 bufferIndex)  # transmit to all nodes with same probability except the same node, where the
             # probability is 0
             Node.addPacket(whichSlot, destinationNode)
+            print("Node ", bufferIndex, "Created Packet. | Destination : ", destinationNode)
 
 
 # Finale slot of packet declared
@@ -81,10 +83,10 @@ for i in range(W):
 
 # Running the simulation for n slots
 # n = int(sys.argv[1])
-n = 100000
+n = 10
 for slot in range(n):
 
-    # print("\n\n Slot : ", slot, "\n\n")
+    print("\n\n Slot : ", slot, "\n")
 
 
     # Genarate packets
@@ -93,14 +95,6 @@ for slot in range(n):
         generatePacket(nd, index, slot)
         index += 1
 
-    # debug
-    #print("\n\n")
-    #for nd in range(len(nodes)):
-    #    print("Node : ", nd, "\n")
-    #    for p in range(len(nodes[nd].packets)):
-    #        print("     Capacity : ", nodes[nd].li)
-    #        print("     Packets : ", len(nodes[nd].packets))
-    #        print("     Destination : ", nodes[nd].packets[p].nodeDest)
 
     # trans[i] = k
     trans = []
@@ -151,23 +145,29 @@ for slot in range(n):
                 if j.nodeDest in B[trans[i]]:  # if the destination of the packet (of node i) is in the set B[k]
                     endOfPacketTransmition(nodes[i], indexOfPacket,
                                            slot)  # the slot that packet leaves the system declared
+                    print("\nPacket from Node ", i  , " transmited to Node" , j.nodeDest , " through channel" , trans[i])
                     # print("Packet transmited")
                     # print("Diff : ", j.slotFinal - j.slotInit)
                     averageDelay += j.slotFinal - j.slotInit  # Delay
                     packetLeavesTheSys(nodes[i], indexOfPacket)
                     TP += 1  # packets transmited
+                    break
                 indexOfPacket += 1
 
     # plot
 
 
-    if slot%4 == 0:
+    if slot%1 == 0:
         stat.x.append(TP / (slot + 1))  # Avarage number of transmited packets per slot
         stat.y.append(averageDelay / (slot + 1))
 
     # feedback
+    print("\n")
     #os.system("clear")
-    print((slot / n) * 100, "%")
+    #print("RTDMA validation -  SYSTEM 3")
+    #print("****************************")
+    #print((slot / n) * 100, "%")
+    #os.system("clear")
 
 # Print average Delay of packet transmition
 averageDelay = averageDelay / (n + 1)

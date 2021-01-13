@@ -18,7 +18,7 @@ class Statistics:
     def plot(self):
 
         self.sort()
-        self.regression()
+        #self.regression()
         plt.plot(self.x, self.y, color='red')
         #plt.plot(self.x_to_plot, self.y_to_plot, color='green')
         plt.xlabel("Throughput")
