@@ -1,30 +1,18 @@
 from buffer import Buffer
 from statisticsRtdma import Statistics
+from protocol import Protocol
 from numpy.random import choice
 import os
 import random
-#from tqdm import tqdm
+# from tqdm import tqdm
 import curses
 
-# progress bar
-#curses.initscr()
-def update_progress(progress):
-    win = curses.newwin(3, 32, 3, 30)
-    win.border(0)
-    rangex = (30 / float(100)) * progress
-    pos = int(rangex)
-    display = '#'
-    if pos != 0:
-        win.addstr(1, 1, "{}".format(display * pos))
-        win.refresh()
-
-# import sys
 
 N = 8  # Number of Nodes /
 W = 4  # Number of channel (Wavelengths) /
 d = 1 / (N - 1)  # transmission probability /
 b = 1  # sum of packet-generation probabilities /
-#li = b / 36  # generation-packets probability /
+# li = b / 36  # generation-packets probability /
 li = b / N  # generation-packets probability /
 
 # statistic stuff
@@ -36,20 +24,21 @@ nodes = []  # Nodes
 
 # generate N nodes with buffer capacity --> i+1
 for i in range(N):
-    #nodes.append(Buffer(i + 1))
+    # nodes.append(Buffer(i + 1))
     nodes.append(Buffer(4))
 
 
 def probGenerator(bufferIndex, prob):
-    #return random.random() <= (bufferIndex + 1) * prob
-    return random.random() <=  prob
+    # return random.random() <= (bufferIndex + 1) * prob
+    return random.random() <= prob
+
 
 # returns the index of the destination node
 def dimGeneraor(bufferIndex):
     Ms = list(range(N))
     Ms.pop(bufferIndex)
-    #mProbs = [m/(((N*(N+1))/2)-(bufferIndex+1)) for m in Ms] # probability matrix for every dest
-    mProbs = [1/(N-1) for k in Ms]  # probability matrix for every dest
+    # mProbs = [m/(((N*(N+1))/2)-(bufferIndex+1)) for m in Ms] # probability matrix for every dest
+    mProbs = [1 / (N - 1) for k in Ms]  # probability matrix for every dest
     destination = choice(Ms, 1, mProbs)
     return destination[0]
 
@@ -75,15 +64,15 @@ def endOfPacketTransmition(Node, indexP, whichSlot):
 def packetLeavesTheSys(Node, indexP):
     Node.removePacket(indexP)
 
+
 def showStatus():
     print("\t\tPacket  |  dest")
-
 
 
 # *** *** The rTDMA Protocol *** ***#
 
 # which node can transmit according to channel
-A = []  # A[i] = {1,2,3,4} --> nodes  1,2,3,4 can transmit to channel i
+A = []  # A[i] = {1,2,3,4} --> nodes  1,2,3,4 can transmit through channel i
 for i in range(W):
     A.append([])
     for j in range(N):
@@ -99,14 +88,14 @@ for i in range(W):
         B[i].append(nds)
         nds = nds + 1
 
+# transmission schedule
+schedule = Protocol()
+
 # Running the simulation for n slots
-# n = int(sys.argv[1])
-os.system("clear")
-n = 10000
+n = 1000
 for slot in range(n):
 
     print("\n\n Slot : ", slot, "\n")
-
 
     # Genarate packets
     index = 0
@@ -114,49 +103,14 @@ for slot in range(n):
         generatePacket(nd, index, slot)
         index += 1
 
-
-    # trans[i] = k
-    trans = []
-    for i in range(N):
-        trans.append(-1)  # Initialize trans[i] = -1
-
-    # Trans[k] collision free algorithm -------------------------------------------
-
-    # 1. Set of Channels and A set
-
-    # Ak = A.copy() # We want A set to remain unchanged in the beggining of every slot
-    Ak = []
-    count = 0
-    for aa in A:
-        Ak.append([])
-        for aaaa in aa:
-            Ak[count].append(aaaa)
-        count += 1
-
-    # Ω set
-    channels = []
-    for i in range(W):
-        channels.append(i)  # [ channel0, channel1, ..., channeN-1 ]
-
-    while len(channels) != 0:
-        # 2. select a random chanel k and remove k from set channels
-        k = channels.pop(random.randint(0, len(channels) - 1))
-
-        # 3. select a random node from set A[k]
-        i = Ak[k].pop(random.randint(0, len(Ak[k]) - 1))
-
-        # 4. Set trans[i] = k and remove i node from Ak sets
-        trans[i] = k
-        for r in Ak:
-            if i in r:
-                r.remove(i)
+    trans = schedule.algorithm(A, W, N)
 
     # print("\n\n", trans, "\n\n")
 
     # choose which packets is going to transmit / declare final slot of packet / remove packet from system
     for i in range(len(nodes)):
-        if trans[i] == -1:  # because 0 is in use / node i have permission to transmit in channel k (-1 ==> have no
-            # permission)
+        if trans[i] == -1 or not nodes[i].isBusy():  # because 0 is in use / node i have permission to transmit in
+            # channel k (-1 ==> have no permission)
             continue
         else:
             indexOfPacket = 0
@@ -164,33 +118,26 @@ for slot in range(n):
                 if j.nodeDest in B[trans[i]]:  # if the destination of the packet (of node i) is in the set B[k]
                     endOfPacketTransmition(nodes[i], indexOfPacket,
                                            slot)  # the slot that packet leaves the system declared
-                    print("\nPacket from Node ", i  , " transmited to Node" , j.nodeDest , " through channel" , trans[i])
+                    print("\nPacket from Node ", i, " transmited to Node", j.nodeDest, " through channel", trans[i],
+                          " delay of packet : ", j.slotFinal - j.slotInit)
                     # print("Packet transmited")
                     # print("Diff : ", j.slotFinal - j.slotInit)
                     averageDelay += j.slotFinal - j.slotInit  # Delay
                     packetLeavesTheSys(nodes[i], indexOfPacket)
                     TP += 1  # packets transmited
-                    break # each node transmit once in a slot
+                    break  # each node transmit once in a slot
                 indexOfPacket += 1
 
     # plot
 
 
-    if slot%4 == 0:
-        stat.x.append(TP / (slot + 1))  # Avarage number of transmited packets per slot
-        stat.y.append(averageDelay / (slot + 1))
+    stat.x.append(TP / (slot + 1))  # Average number of transited packets per slot
+    stat.y.append(averageDelay / (slot + 1))
 
     # feedback
     print("\n")
-    #update_progress((slot / n) * 100)
-    #os.system("clear")
-    #print("RTDMA validation -  SYSTEM 3")
-    #print("****************************")
-    #print((slot / n) * 100, "%")
-    #os.system("clear")
 
-
-# Print average Delay of packet transmition
+# Print average Delay of packet transmission
 averageDelay = averageDelay / (n + 1)
 TP = TP / (n + 1)
 print("Average Delay : ", averageDelay, "slots")
@@ -198,7 +145,3 @@ print("TP : ", TP)
 print("slots : ", n)
 
 stat.plot()
-
-
-
-

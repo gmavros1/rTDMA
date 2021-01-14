@@ -9,7 +9,6 @@ class Statistics:
     y = []
     y_to_plot = []
 
-
     def __init__(self):
         self.x = []
         self.y = []
@@ -17,23 +16,25 @@ class Statistics:
     def plot(self):
 
         self.sort()
-        self.regression()
+        # self.regression()
         plot(self.x, self.y, color='red')
-        plot(self.x, self.y_to_plot, color='green')
+        # self.regression()
+        # plot(self.x, self.y_to_plot, color='green')
         xlabel("Throughput")
         ylabel("Delay")
         title("rTDMA")
+        ymin, ymax = min(self.y), max(self.y)
+        ylim(ymin, 1.05*ymax)
         show()
-
 
     def sort(self):
         self.x, self.y = zip(*sorted(zip(self.x, self.y)))
-
 
     def regression(self):
         for i in self.x:
             self.y_to_plot.append(self.minimum_sqr3(i))
 
+    # noinspection PyCallingNonCallable
     def P_update(self, m, a, b):
         temp = []
         for i in range(len(m)):
@@ -43,6 +44,7 @@ class Statistics:
         for i in range(len(m)):
             m[b][i] = temp[i]
 
+    # noinspection PyCallingNonCallable
     def PALU(self, A, b):
         len_m = len(A)
         p_matrix = eye(len_m)

@@ -10,7 +10,7 @@ class Buffer:
         self.packets = []
 
     def isBusy(self):
-        return len(self.packets) > 1
+        return len(self.packets) >= 1
 
     def isFull(self):
         if len(self.packets) >= self.li:
