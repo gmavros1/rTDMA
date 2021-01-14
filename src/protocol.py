@@ -1,5 +1,6 @@
 import random
 
+
 class Protocol:
     trans = []
 

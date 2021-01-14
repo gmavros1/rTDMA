@@ -8,8 +8,7 @@ N = 8  # Number of Nodes /
 W = 4  # Number of channel (Wavelengths) /
 d = 1 / (N - 1)  # transmission probability /
 b = 1  # sum of packet-generation probabilities /
-li = b / N  # generation-packets probability /
-# li = b / 36  # generation-packets probability /
+li = b / 8  # generation-packets probability /
 
 # statistic stuff
 stat = Statistics()
@@ -20,7 +19,6 @@ nodes = []  # Nodes
 
 # generate N nodes with buffer capacity --> i+1
 for i in range(N):
-    # nodes.append(Buffer(i + 1))
     nodes.append(Buffer(4))
 
 
@@ -33,7 +31,6 @@ def probGenerator(bufferIndex, prob):
 def dimGeneraor(bufferIndex):
     Ms = list(range(N))
     Ms.pop(bufferIndex)
-    # mProbs = [m/(((N*(N+1))/2)-(bufferIndex+1)) for m in Ms] # probability matrix for every dest
     mProbs = [1 / (N - 1) for k in Ms]  # probability matrix for every dest
     destination = choice(Ms, 1, mProbs)
     return destination[0]
@@ -47,7 +44,7 @@ def generatePacket(Node, bufferIndex, whichSlot):
                 bufferIndex)  # transmit to all nodes with same probability except the same node, where the
             # probability is 0
             Node.addPacket(whichSlot, destinationNode)
-            print("Node ", bufferIndex, "Created Packet. | Destination : ", destinationNode)
+            # print("Node ", bufferIndex, "Created Packet. | Destination : ", destinationNode)
 
 
 # Finale slot of packet declared
@@ -68,7 +65,7 @@ def showStatus():
 # *** *** The rTDMA Protocol *** ***#
 
 # which node can transmit according to channel
-A = []  # A[i] = {1,2,3,4} --> nodes  1,2,3,4 can transmit through channel i
+A = []  # A[k] = {1,2,3,4} --> nodes  1,2,3,4 can transmit through channel k
 for i in range(W):
     A.append([])
     for j in range(N):
@@ -91,7 +88,7 @@ schedule = Protocol(N)
 n = 100
 for slot in range(n):
 
-    print("\n\n Slot : ", slot, "\n")
+    #print("\n\n Slot : ", slot, "\n")
 
     # Genarate packets
     index = 0
@@ -99,6 +96,8 @@ for slot in range(n):
         generatePacket(nd, index, slot)
         index += 1
 
+    # the transmission starts in i slot and arrives at i+1
+    arrivalSlot = slot + 1
 
     trans = schedule.algorithm(A, W, N)
 
@@ -114,35 +113,36 @@ for slot in range(n):
             for j in nodes[i].packets:  # nodes --> buffer of every node
                 if j.nodeDest in B[trans[i]]:  # if the destination of the packet (of node i) is in the set B[k]
                     endOfPacketTransmition(nodes[i], indexOfPacket,
-                                           slot)  # the slot that packet leaves the system declared
-                    print("\nPacket from Node ", i, " transmitted to Node", j.nodeDest, " through channel", trans[i],
-                          " delay of packet : ", j.slotFinal - j.slotInit)
-                    # print("Packet transmitted")
-                    # print("Diff : ", j.slotFinal - j.slotInit)
+                                           arrivalSlot)  # the slot that packet leaves the system declared
+                    # print("\nPacket from Node ", i, " transmitted to Node", j.nodeDest, " through channel", trans[i]," delay of packet : ", j.slotFinal - j.slotInit)
                     averageDelay += j.slotFinal - j.slotInit  # Delay
                     packetLeavesTheSys(nodes[i], indexOfPacket)
                     TP += 1  # packets transmitted
                     break  # each node transmit once in a slot
                 indexOfPacket += 1
 
-
     # plot
+    if arrivalSlot > 1:
+            try:
+                stat.x.append(TP / arrivalSlot)  # Average number of transited packets per slot
+                stat.y.append(averageDelay / TP)
+                if TP / arrivalSlot == 0:
+                    print(averageDelay / TP)
+            except ZeroDivisionError:
+                pass
 
-    try:
-        stat.x.append(TP / (slot + 1))  # Average number of transited packets per slot
-        #stat.y.append(averageDelay / (slot + 1))
-        stat.y.append(averageDelay / TP)
-    except ZeroDivisionError:
-        pass
+
 
     # feedback
-    print("\n")
+    #print("\n")
 
 # Print average Delay of packet transmission
-averageDelay = averageDelay / (n + 1)
+averageDelay = averageDelay / TP
 TP = TP / (n + 1)
 print("Average Delay : ", averageDelay, "slots")
 print("TP : ", TP)
 print("slots : ", n)
 
 stat.plot()
+print(stat.x)
+print(stat.y)

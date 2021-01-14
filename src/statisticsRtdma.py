@@ -16,15 +16,15 @@ class Statistics:
     def plot(self):
 
         self.sort()
-        # self.regression()
         plot(self.x, self.y, color='red')
-        # self.regression()
-        # plot(self.x, self.y_to_plot, color='green')
+        #self.regression()
+        #plot(self.x, self.y_to_plot, color='green')
         xlabel("Throughput")
         ylabel("Delay")
         title("rTDMA")
         ymin, ymax = min(self.y), max(self.y)
-        ylim(ymin, 1.05*ymax)
+        ylim(0, 1.05 * 14)
+        xlim(0, 4)
         show()
 
     def sort(self):
