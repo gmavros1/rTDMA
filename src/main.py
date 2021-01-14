@@ -2,18 +2,14 @@ from buffer import Buffer
 from statisticsRtdma import Statistics
 from protocol import Protocol
 from numpy.random import choice
-import os
 import random
-# from tqdm import tqdm
-import curses
-
 
 N = 8  # Number of Nodes /
 W = 4  # Number of channel (Wavelengths) /
 d = 1 / (N - 1)  # transmission probability /
 b = 1  # sum of packet-generation probabilities /
-# li = b / 36  # generation-packets probability /
 li = b / N  # generation-packets probability /
+# li = b / 36  # generation-packets probability /
 
 # statistic stuff
 stat = Statistics()
@@ -89,10 +85,10 @@ for i in range(W):
         nds = nds + 1
 
 # transmission schedule
-schedule = Protocol()
+schedule = Protocol(N)
 
 # Running the simulation for n slots
-n = 1000
+n = 100
 for slot in range(n):
 
     print("\n\n Slot : ", slot, "\n")
@@ -102,6 +98,7 @@ for slot in range(n):
     for nd in nodes:
         generatePacket(nd, index, slot)
         index += 1
+
 
     trans = schedule.algorithm(A, W, N)
 
@@ -118,21 +115,25 @@ for slot in range(n):
                 if j.nodeDest in B[trans[i]]:  # if the destination of the packet (of node i) is in the set B[k]
                     endOfPacketTransmition(nodes[i], indexOfPacket,
                                            slot)  # the slot that packet leaves the system declared
-                    print("\nPacket from Node ", i, " transmited to Node", j.nodeDest, " through channel", trans[i],
+                    print("\nPacket from Node ", i, " transmitted to Node", j.nodeDest, " through channel", trans[i],
                           " delay of packet : ", j.slotFinal - j.slotInit)
-                    # print("Packet transmited")
+                    # print("Packet transmitted")
                     # print("Diff : ", j.slotFinal - j.slotInit)
                     averageDelay += j.slotFinal - j.slotInit  # Delay
                     packetLeavesTheSys(nodes[i], indexOfPacket)
-                    TP += 1  # packets transmited
+                    TP += 1  # packets transmitted
                     break  # each node transmit once in a slot
                 indexOfPacket += 1
 
+
     # plot
 
-
-    stat.x.append(TP / (slot + 1))  # Average number of transited packets per slot
-    stat.y.append(averageDelay / (slot + 1))
+    try:
+        stat.x.append(TP / (slot + 1))  # Average number of transited packets per slot
+        #stat.y.append(averageDelay / (slot + 1))
+        stat.y.append(averageDelay / TP)
+    except ZeroDivisionError:
+        pass
 
     # feedback
     print("\n")

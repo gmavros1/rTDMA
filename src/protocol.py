@@ -3,15 +3,17 @@ import random
 class Protocol:
     trans = []
 
-    def __init__(self):
+    def __init__(self, N):
         self.trans = []
-
-    def algorithm(self, A, W, N):
         # trans[i] = k
         for i in range(N):
             self.trans.append(-1)  # Initialize trans[i] = -1
 
+    def algorithm(self, A, W, N):
+
         # Trans[k] collision free algorithm -------------------------------------------
+        for t in range(N):
+            self.trans[t] = -1
 
         # 1. Set of Channels and A set
 
