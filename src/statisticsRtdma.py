@@ -1,34 +1,51 @@
-import matplotlib.pyplot as plt
-from numpy import arange
 from pylab import *
 from numpy import *
+from tabulate import tabulate
 
 
 class Statistics:
     x = []
     y = []
     y_to_plot = []
+    packetsTransmitted = []
 
     def __init__(self):
         self.x = []
         self.y = []
+        self.packetsTransmitted = []
+
+    def printResults(self):
+        print(tabulate( { "Throughput": self.x, "Delay": self.y, } ))
+
+    def addThroughputAndAvDelay(self, slot):
+        sumForDelay = 0
+        numberOfPacketsTransmitted = 0
+        for i in self.packetsTransmitted:
+            sumForDelay += i.slotFinal - i.slotInit
+            numberOfPacketsTransmitted += 1
+        try:
+            self.y.append(sumForDelay/numberOfPacketsTransmitted)
+            self.x.append(numberOfPacketsTransmitted/slot)
+        except ZeroDivisionError:
+            pass
 
     def plot(self):
 
         self.sort()
         plot(self.x, self.y, color='red')
-        #self.regression()
-        #plot(self.x, self.y_to_plot, color='green')
+        # self.regression()
+        # plot(self.x, self.y_to_plot, color='green')
         xlabel("Throughput")
         ylabel("Delay")
         title("rTDMA")
-        ymin, ymax = min(self.y), max(self.y)
-        ylim(0, 1.05 * 14)
+        ylim(0, 14)
         xlim(0, 4)
         show()
 
     def sort(self):
         self.x, self.y = zip(*sorted(zip(self.x, self.y)))
+        # self.x.sort()
+        # self.y.sort()
 
     def regression(self):
         for i in self.x:

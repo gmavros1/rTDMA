@@ -8,7 +8,7 @@ N = 8  # Number of Nodes /
 W = 4  # Number of channel (Wavelengths) /
 d = 1 / (N - 1)  # transmission probability /
 b = 1  # sum of packet-generation probabilities /
-li = b / 8  # generation-packets probability /
+li = b / N  # generation-packets probability /
 
 # statistic stuff
 stat = Statistics()
@@ -85,10 +85,10 @@ for i in range(W):
 schedule = Protocol(N)
 
 # Running the simulation for n slots
-n = 100
+n = 1000000
 for slot in range(n):
 
-    #print("\n\n Slot : ", slot, "\n")
+    # print("\n\n Slot : ", slot, "\n")
 
     # Genarate packets
     index = 0
@@ -115,34 +115,36 @@ for slot in range(n):
                     endOfPacketTransmition(nodes[i], indexOfPacket,
                                            arrivalSlot)  # the slot that packet leaves the system declared
                     # print("\nPacket from Node ", i, " transmitted to Node", j.nodeDest, " through channel", trans[i]," delay of packet : ", j.slotFinal - j.slotInit)
-                    averageDelay += j.slotFinal - j.slotInit  # Delay
+                    # averageDelay += j.slotFinal - j.slotInit  # Delay
+                    stat.packetsTransmitted.append(j)
                     packetLeavesTheSys(nodes[i], indexOfPacket)
-                    TP += 1  # packets transmitted
+                    # TP += 1  # packets transmitted
                     break  # each node transmit once in a slot
                 indexOfPacket += 1
 
+    stat.addThroughputAndAvDelay(arrivalSlot)
+
     # plot
-    if arrivalSlot > 1:
-            try:
-                stat.x.append(TP / arrivalSlot)  # Average number of transited packets per slot
-                stat.y.append(averageDelay / TP)
-                if TP / arrivalSlot == 0:
-                    print(averageDelay / TP)
-            except ZeroDivisionError:
-                pass
-
-
+    # if arrivalSlot > 1:
+    #       try:
+    #           stat.x.append(TP / arrivalSlot)  # Average number of transited packets per slot
+    #           stat.y.append(averageDelay / TP)
+    #           if TP / arrivalSlot == 0:
+    #               print(averageDelay / TP)
+    #       except ZeroDivisionError:
+    #           pass
 
     # feedback
-    #print("\n")
+    # print("\n")
 
 # Print average Delay of packet transmission
-averageDelay = averageDelay / TP
-TP = TP / (n + 1)
-print("Average Delay : ", averageDelay, "slots")
-print("TP : ", TP)
-print("slots : ", n)
+# averageDelay = averageDelay / TP
+# TP = TP / (n + 1)
+# print("Average Delay : ", averageDelay, "slots")
+# print("TP : ", TP)
+# print("slots : ", n)
 
 stat.plot()
-print(stat.x)
-print(stat.y)
+stat.printResults()
+# print(stat.x)
+# print(stat.y)
