@@ -30,7 +30,6 @@ class Statistics:
             pass
 
     def plot(self):
-
         self.sort()
         plot(self.x, self.y, color='red')
         # self.regression()
@@ -41,6 +40,10 @@ class Statistics:
         ylim(0, 14)
         xlim(0, 4)
         show()
+        with open('/home/gmavros/Desktop/Sxolhtemp/communication networks/project/rTDMA/src/results.txt', 'w') as r:
+            for n in range(len(self.x)):
+                r.write('{} {}\n'.format(self.x[n], self.y[n]))
+        r.close()
 
     def sort(self):
         self.x, self.y = zip(*sorted(zip(self.x, self.y)))

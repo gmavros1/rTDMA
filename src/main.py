@@ -8,7 +8,7 @@ N = 8  # Number of Nodes /
 W = 4  # Number of channel (Wavelengths) /
 d = 1 / (N - 1)  # transmission probability /
 b = 1  # sum of packet-generation probabilities /
-li = b / N  # generation-packets probability /
+li = (b / N) + 0.21  # generation-packets probability /
 
 # statistic stuff
 stat = Statistics()
@@ -85,7 +85,7 @@ for i in range(W):
 schedule = Protocol(N)
 
 # Running the simulation for n slots
-n = 1000000
+n = 10000
 for slot in range(n):
 
     # print("\n\n Slot : ", slot, "\n")
