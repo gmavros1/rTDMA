@@ -8,7 +8,8 @@ N = 8  # Number of Nodes /
 W = 4  # Number of channel (Wavelengths) /
 d = 1 / (N - 1)  # transmission probability /
 b = 1  # sum of packet-generation probabilities /
-li = (b / N) + 0.21  # generation-packets probability /
+#li = (b / N) + 0.1   # generation-packets probability /
+li = b / 36  # generation-packets probability /
 
 # statistic stuff
 stat = Statistics()
@@ -19,19 +20,20 @@ nodes = []  # Nodes
 
 # generate N nodes with buffer capacity --> i+1
 for i in range(N):
-    nodes.append(Buffer(4))
-
+    #nodes.append(Buffer(4))
+    nodes.append(Buffer(i + 1))
 
 def probGenerator(bufferIndex, prob):
-    # return random.random() <= (bufferIndex + 1) * prob
-    return random.random() <= prob
+    return random.random() <= (bufferIndex + 1) * prob
+    # return random.random() <= prob
 
 
 # returns the index of the destination node
 def dimGeneraor(bufferIndex):
     Ms = list(range(N))
     Ms.pop(bufferIndex)
-    mProbs = [1 / (N - 1) for k in Ms]  # probability matrix for every dest
+    #mProbs = [1 / (N - 1) for k in Ms]  # probability matrix for every dest
+    mProbs = [m / (((N * (N + 1)) / 2) - (bufferIndex + 1)) for m in Ms]  # probability matrix for every dest
     destination = choice(Ms, 1, mProbs)
     return destination[0]
 
@@ -85,10 +87,12 @@ for i in range(W):
 schedule = Protocol(N)
 
 # Running the simulation for n slots
-n = 10000
+n = 1000000
 for slot in range(n):
 
     # print("\n\n Slot : ", slot, "\n")
+    TPPerSlot = 0
+    DelayPerSlot = 0
 
     # Genarate packets
     index = 0
@@ -117,10 +121,15 @@ for slot in range(n):
                     # print("\nPacket from Node ", i, " transmitted to Node", j.nodeDest, " through channel", trans[i]," delay of packet : ", j.slotFinal - j.slotInit)
                     # averageDelay += j.slotFinal - j.slotInit  # Delay
                     stat.packetsTransmitted.append(j)
+                    stat.sumsOfDelays += j.slotFinal - j.slotInit
+                    stat.howManySuccessfulTrans += 1
                     packetLeavesTheSys(nodes[i], indexOfPacket)
                     # TP += 1  # packets transmitted
+                    TPPerSlot += 1
+                    DelayPerSlot += 1
                     break  # each node transmit once in a slot
                 indexOfPacket += 1
+
 
     stat.addThroughputAndAvDelay(arrivalSlot)
 

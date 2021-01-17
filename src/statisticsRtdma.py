@@ -8,26 +8,28 @@ class Statistics:
     y = []
     y_to_plot = []
     packetsTransmitted = []
+    sumsOfDelays = 0
+    howManySuccessfulTrans = 0
 
     def __init__(self):
         self.x = []
         self.y = []
         self.packetsTransmitted = []
+        self.sumsOfDelays = 0
+        self.howManySuccessfulTrans = 0
 
     def printResults(self):
-        print(tabulate( { "Throughput": self.x, "Delay": self.y, } ))
+        print(tabulate({"Throughput": self.x, "Delay": self.y}))
+
 
     def addThroughputAndAvDelay(self, slot):
-        sumForDelay = 0
-        numberOfPacketsTransmitted = 0
-        for i in self.packetsTransmitted:
-            sumForDelay += i.slotFinal - i.slotInit
-            numberOfPacketsTransmitted += 1
         try:
-            self.y.append(sumForDelay/numberOfPacketsTransmitted)
-            self.x.append(numberOfPacketsTransmitted/slot)
+            self.y.append(self.sumsOfDelays/self.howManySuccessfulTrans)
+            self.x.append(self.howManySuccessfulTrans/slot)
         except ZeroDivisionError:
             pass
+
+
 
     def plot(self):
         self.sort()
@@ -47,6 +49,7 @@ class Statistics:
 
     def sort(self):
         self.x, self.y = zip(*sorted(zip(self.x, self.y)))
+
         # self.x.sort()
         # self.y.sort()
 
