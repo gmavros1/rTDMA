@@ -6,33 +6,38 @@ from tabulate import tabulate
 class Statistics:
     x = []
     y = []
-    y_to_plot = []
-    packetsTransmitted = []
+    #y_to_plot = []
+    #packetsTransmitted = []
     sumsOfDelays = 0
     howManySuccessfulTrans = 0
 
     def __init__(self):
         self.x = []
         self.y = []
-        self.packetsTransmitted = []
-        self.sumsOfDelays = 0
-        self.howManySuccessfulTrans = 0
+        #self.packetsTransmitted = []
 
-    def printResults(self):
-        print(tabulate({"Throughput": self.x, "Delay": self.y}))
+    def printResults(self, n):
+        # print(tabulate({"Throughput": self.x, "Delay": self.y}))
+        print("Average Delay : ", self.sumsOfDelays/self.howManySuccessfulTrans, "slots")
+        print("TP : ", self.howManySuccessfulTrans/n)
+        print("slots : ", n)
 
 
-    def addThroughputAndAvDelay(self, slot):
-        try:
-            self.y.append(self.sumsOfDelays/self.howManySuccessfulTrans)
-            self.x.append(self.howManySuccessfulTrans/slot)
-        except ZeroDivisionError:
-            pass
+
+    def addThroughputAndAvDelay(self,n):
+        #try:
+        #    self.y.append(self.sumsOfDelays/self.howManySuccessfulTrans)
+        #    self.x.append(self.howManySuccessfulTrans/slot)
+        #except ZeroDivisionError:
+        #    pass
+        self.x.append(self.howManySuccessfulTrans/n)
+        self.y.append(self.sumsOfDelays/self.howManySuccessfulTrans)
+
 
 
 
     def plot(self):
-        self.sort()
+        # self.sort()
         plot(self.x, self.y, color='red')
         # self.regression()
         # plot(self.x, self.y_to_plot, color='green')
