@@ -7,8 +7,6 @@ class Statistics:
     x = []
     y = []
     b = []
-    #y_to_plot = []
-    #packetsTransmitted = []
     sumsOfDelays = 0
     howManySuccessfulTrans = 0
 
@@ -16,7 +14,6 @@ class Statistics:
         self.x = []
         self.y = []
         self.b = []
-        #self.packetsTransmitted = []
 
     def printResults(self, n):
         # print(tabulate({"Throughput": self.x, "Delay": self.y}))
@@ -36,14 +33,13 @@ class Statistics:
     def plot(self):
         self.sort()
         plot(self.x, self.y, color='red')
-        # plt.plot(self.x, self.y, 'ro')
         xlabel("Throughput")
         ylabel("Delay")
         title("rTDMA")
         ylim(7, 15)
         xlim(0, 4)
         show()
-        with open('/home/gmavros/Desktop/Sxolhtemp/communication networks/project/rTDMA/src/result6.txt', 'w') as r:
+        with open('/home/gmavros/Desktop/Sxolhtemp/communication networks/project/rTDMA/src/test.txt', 'w') as r:
             for n in range(len(self.x)):
                 r.write('{} {} {}\n'.format(self.x[n], self.y[n], self.b[n]))
         r.close()
