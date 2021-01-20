@@ -7,12 +7,17 @@ import random
 # statistic stuff
 stat = Statistics()
 
-for bs in range(1, 15):
+step = 8
+for bs in range(0, 72, step):
 
     N = 8  # Number of Nodes /
     W = 4  # Number of channel (Wavelengths) /
     d = 1 / (N - 1)  # transmission probability /
-    b = 0.2 * bs  # sum of packet-generation probabilities /
+    b = 0  # node load /
+    if bs != 0:
+        b = 0.1 * bs
+    else:
+        b = 0.1
     li = (b / N)  # generation-packets probability /
     # li = b / 36  # generation-packets probability /
 
@@ -91,12 +96,10 @@ for bs in range(1, 15):
     stat.howManySuccessfulTrans = 0
 
     # Running the simulation for n slots
-    n = 100000
+    n = 1000
     for slot in range(n):
 
         # print("\n\n Slot : ", slot, "\n")
-        averageDelay = 0
-        TP = 0
 
         # Genarate packets
         index = 0
@@ -124,22 +127,22 @@ for bs in range(1, 15):
                                                arrivalSlot)  # the slot that packet leaves the system declared
                         # print("\nPacket from Node ", i, " transmitted to Node", j.nodeDest, " through channel", trans[i]," delay of packet : ", j.slotFinal - j.slotInit)
 
-                        #stat.packetsTransmitted.append(j)
-                        TP += 1  # packets transmitted
-                        averageDelay += j.slotFinal - j.slotInit  # Delay
+                        # stat.packetsTransmitted.append(j)
+                        stat.howManySuccessfulTrans += 1
+                        stat.sumsOfDelays += j.slotFinal - j.slotInit
 
                         packetLeavesTheSys(nodes[i], indexOfPacket)
                         break  # each node transmit once in a slot
                     indexOfPacket += 1
 
-        stat.howManySuccessfulTrans += TP
-        stat.sumsOfDelays += averageDelay
 
     # Print average Delay of packet transmission
     # averageDelay = averageDelay / TP
     # TP = TP / (n + 1)
 
+    print("\nLoad  : ", b)
     stat.printResults(n)
+    stat.b.append(b)
     stat.addThroughputAndAvDelay(n)
 
 stat.plot()
