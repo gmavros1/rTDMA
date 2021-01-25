@@ -1,14 +1,14 @@
 from buffer import Buffer
 from statisticsRtdma import Statistics
 from protocol import Protocol
-from numpy.random import choice
 import random
 
 # statistic stuff
 stat = Statistics()
 
+n = 100
 step = 8
-for bs in range(0, 80, step):
+for bs in range(0, 88, step):
 
     currentSlot = 0
     N = 8  # Number of Nodes /
@@ -18,8 +18,8 @@ for bs in range(0, 80, step):
     if bs != 0:
         b = 0.1 * bs
     else:
-        b = 0.1 * 72
-    li = (b / N)  # generation-packets probability /
+        b = 0.1
+    li = b / N  # generation-packets probability /
     # li = b / 36  # generation-packets probability /
 
     nodes = []  # Nodes
@@ -39,11 +39,11 @@ for bs in range(0, 80, step):
     def dimGeneraor(bufferIndex):
         Ms = list(range(N))
         Ms.pop(bufferIndex)
-        mProbs = [1 / (N - 1) for k in Ms]  # probability matrix for every dest
+        #mProbs = [1 / (N - 1) for k in Ms]  # probability vector (for every dest)
         # mProbs = [m / (((N * (N + 1)) / 2) - (bufferIndex + 1)) for m in Ms]  # probability matrix for every dest
-        destination = choice(Ms, 1, mProbs)
-        return destination[0]
-
+        #destination = choice(Ms, 1, mProbs)
+        #return destination[0]
+        return random.choice(Ms)
 
     # Packet generation /  define destination / define in which slot is generated / define the destination
     def generatePacket(Node, bufferIndex, whichSlot):
@@ -53,7 +53,7 @@ for bs in range(0, 80, step):
                     bufferIndex)  # transmit to all nodes with same probability except the same node, where the
                 # probability is 0
                 Node.addPacket(whichSlot, destinationNode)
-                # print("Node ", bufferIndex, "Created Packet. | Destination : ", destinationNode)
+                print("Node ", bufferIndex, "Created Packet. | Destination : ", destinationNode)
 
 
     # Finale slot of packet declared
@@ -97,10 +97,8 @@ for bs in range(0, 80, step):
     stat.howManySuccessfulTrans = 0
 
     # Running the simulation for n slots
-    n = 1000000
-    while (currentSlot < n):
+    while currentSlot <= n:
 
-        print("\n\n Slot : ", currentSlot, "\n")
 
         # Genarate packets
         index = 0
@@ -108,16 +106,20 @@ for bs in range(0, 80, step):
             generatePacket(nd, index, currentSlot)
             index += 1
 
-        # packet trans starts in i slot and arrives at i+1
-        currentSlot += 1
 
         trans = schedule.algorithm(A, W, N)
+        print("\nTRANS : ", trans,"\n")
 
         # print("\n\n", trans, "\n\n")
 
+        # packet trans starts in i slot and arrives at i+1
+        currentSlot += 1
+        print("\n\n Slot : ", currentSlot, "\n")
+
         # choose which packets is going to transmit / declare final slot of packet / remove packet from system
         for i in range(len(nodes)):
-            if trans[i] == -1 or not nodes[i].isBusy():  # because 0 is in use / node i have permission to transmit in
+            if trans[i] == -1 or not nodes[i].isBusy():  # because 0 is in use / node i have permission to transmit
+                # through
                 # channel k (-1 ==> have no permission)
                 continue
 
@@ -126,25 +128,19 @@ for bs in range(0, 80, step):
                 if j.nodeDest in B[trans[i]]:  # if the destination of the packet (of node i) is in the set B[k]
                     endOfPacketTransmition(nodes[i], indexOfPacket,
                                            currentSlot)  # the slot that packet leaves the system declared
-                    #print("\nPacket from Node ", i, " transmitted to Node",
-                    #j.nodeDest, " through channel", trans[i]," delay of packet : ", j.slotFinal - j.slotInit)
+                    print("\nPacket from Node ", i, " transmitted to Node",
+                          j.nodeDest, " through channel", trans[i], " delay of packet : ", j.slotFinal - j.slotInit)
 
-                    # stat.packetsTransmitted.append(j)
                     stat.howManySuccessfulTrans += 1
                     stat.sumsOfDelays += j.slotFinal - j.slotInit
 
                     packetLeavesTheSys(nodes[i], indexOfPacket)
-                    trans[i] = -1
                     break  # each node transmit once in a slot
                 indexOfPacket += 1
 
-    # Print average Delay of packet transmission
-    # averageDelay = averageDelay / TP
-    # TP = TP / (n + 1)
-
     stat.addThroughputAndAvDelay(n)
     stat.b.append(b)
-    print("\nLoad  : ", b)
-    stat.printResults(n)
+    print("\nLoad  : ", b, "\n")
 
+stat.printResults(n)
 stat.plot()

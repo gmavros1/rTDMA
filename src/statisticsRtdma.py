@@ -16,10 +16,10 @@ class Statistics:
         self.b = []
 
     def printResults(self, n):
-        # print(tabulate({"Throughput": self.x, "Delay": self.y}))
-        print("Average Delay : ", self.sumsOfDelays/self.howManySuccessfulTrans, "slots")
-        print("TP : ", self.howManySuccessfulTrans/n)
-        print("slots : ", n)
+        print(tabulate({"Throughput": self.x, "Delay": self.y}))
+        #print("Average Delay : ", self.sumsOfDelays/self.howManySuccessfulTrans, "slots")
+        #print("TP : ", self.howManySuccessfulTrans/n)
+        #print("slots : ", n)
 
 
 
@@ -46,6 +46,3 @@ class Statistics:
 
     def sort(self):
         self.x, self.y = zip(*sorted(zip(self.x, self.y)))
-
-        # self.x.sort()
-        # self.y.sort()

@@ -1,5 +1,5 @@
 class Packet:
-    slotInit = 0  # slot in which the pakcet is generated
+    slotInit = 0  # slot in which the packet is generated
     slotFinal = 0  # slot in which packet leaves the system
     nodeDest = 0  # Destination node
 
