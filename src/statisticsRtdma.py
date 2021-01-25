@@ -16,7 +16,7 @@ class Statistics:
         self.b = []
 
     def printResults(self, n):
-        print(tabulate({"Throughput": self.x, "Delay": self.y}))
+        print(tabulate({"Throughput": self.x, "Delay": self.y, "System Load": self.b}))
         #print("Average Delay : ", self.sumsOfDelays/self.howManySuccessfulTrans, "slots")
         #print("TP : ", self.howManySuccessfulTrans/n)
         #print("slots : ", n)
@@ -40,8 +40,9 @@ class Statistics:
         xlim(0, 4)
         show()
         with open('/home/gmavros/Desktop/Sxolhtemp/communication networks/project/rTDMA/src/test.txt', 'w') as r:
+            r.write("Throughput\tDelay\tSystem Load")
             for n in range(len(self.x)):
-                r.write('{} {} {}\n'.format(self.x[n], self.y[n], self.b[n]))
+                r.write('{}\t{}\t{}\n'.format(self.x[n], self.y[n], self.b[n]))
         r.close()
 
     def sort(self):

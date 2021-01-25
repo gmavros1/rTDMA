@@ -32,6 +32,8 @@ class Protocol:
         for i in range(W):
             channels.append(i)  # [ channel0, channel1, ..., channeN-1 ]
 
+
+
         while len(channels) != 0:
             # 2. select a random chanel k and remove k from set channels
             k = channels.pop(random.randint(0, len(channels) - 1))
