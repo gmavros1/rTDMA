@@ -1,7 +1,7 @@
 from pylab import *
 from numpy import *
 from tabulate import tabulate
-
+from packet import Packet
 
 class Statistics:
     x = []
@@ -9,6 +9,7 @@ class Statistics:
     b = []
     sumsOfDelays = 0
     howManySuccessfulTrans = 0
+
 
     def __init__(self):
         self.x = []
@@ -40,10 +41,11 @@ class Statistics:
         xlim(0, 4)
         show()
         with open('/home/gmavros/Desktop/Sxolhtemp/communication networks/project/rTDMA/src/test.txt', 'w') as r:
-            r.write("Throughput\tDelay\tSystem Load")
+            r.write("Throughput\t\t\tDelay\t\tSystem Load\n")
             for n in range(len(self.x)):
-                r.write('{}\t{}\t{}\n'.format(self.x[n], self.y[n], self.b[n]))
+                r.write('\n{}\t{}\t{}'.format(self.x[n], self.y[n], self.b[n]))
         r.close()
 
     def sort(self):
         self.x, self.y = zip(*sorted(zip(self.x, self.y)))
+

@@ -22,13 +22,13 @@ def dimGeneraor(bufferIndex):
 
 # Packet generation /  define destination / define in which slot is generated / define the destination
 def generatePacket(Node, bufferIndex, whichSlot):
-    if not Node.isFull():
-        if probGenerator(bufferIndex, li):
-            destinationNode = dimGeneraor(
-                bufferIndex)  # transmit to all nodes with same probability except the same node, where the
-            # probability is 0
-            Node.addPacket(whichSlot, destinationNode)
-            # print("Node ", bufferIndex, "Created Packet. | Destination : ", destinationNode)
+    if probGenerator(bufferIndex, li):
+        destinationNode = dimGeneraor(
+            bufferIndex)  # transmit to all nodes with same probability except the same node, where the
+        # probability is 0
+        if not Node.isFull():
+            Node.addPacket(whichSlot, destinationNode, bufferIndex)
+            print("Node ", bufferIndex, "Created Packet. || Destination : ", destinationNode)
 
 
 # Finale slot of packet declared
@@ -41,24 +41,24 @@ def endOfPacketTransmition(Node, indexP, whichSlot):
 def packetLeavesTheSys(Node, indexP):
     Node.removePacket(indexP)
 
+
 # statistic stuff
 stat = Statistics()
 
-
 # run some simulations with different system load
-n = 1000000
+n = 50
 step = 8
-for bs in range(0, 88, step):
+for bs in range(0, 8, step):
 
     currentSlot = 0
     N = 8  # Number of Nodes /
     W = 4  # Number of channel (Wavelengths) /
     d = 1 / (N - 1)  # transmission probability /
-    b = 0  # node load /
+    b = 0  # system load /
     if bs != 0:
-        b = 0.1 * bs
+        b = 0.1 * bs  # System load
     else:
-        b = 0.1
+        b = 0.1 * 64
     li = b / N  # generation-packets probability /
     # li = b / 36  # generation-packets probability /
 
@@ -68,7 +68,6 @@ for bs in range(0, 88, step):
     for i in range(N):
         nodes.append(Buffer(4))
         # nodes.append(Buffer(i + 1))
-
 
     # *** *** The rTDMA Protocol *** ***#
 
@@ -95,6 +94,7 @@ for bs in range(0, 88, step):
     stat.sumsOfDelays = 0
     stat.howManySuccessfulTrans = 0
 
+    print("\n\nSlot ", 0)
     # Running the simulation for n slots
     while currentSlot <= n:
 
@@ -105,40 +105,51 @@ for bs in range(0, 88, step):
             index += 1
 
         trans = schedule.algorithm(A, W, N)
-        # print("\nTRANS : ", trans, "\n")
+        print("\n\tTRANS : ", trans, "\n")
 
         # print("\n\n", trans, "\n\n")
 
+        # DEBUG
+        nNodes = 0
+        for buffs in nodes:
+            print("\n\tNode ", nNodes)
+            nPackets = 0
+            for pcs in buffs.packets:
+                if buffs.isBusy():
+                    print("\t\tFrom : ", pcs.nodeStart, "|| Destination : ", pcs.nodeDest, "|| Initial slot : ",
+                          pcs.slotInit)
+                else:
+                    print("\t\tEMPTY!!!")
+                nPackets += 1
+            nNodes += 1
+
         # packet trans starts in i slot and arrives at i+1
         currentSlot += 1
-        # print("\n\n Slot : ", currentSlot, "\n")
+        print("\n\n Slot : ", currentSlot)
 
-        # choose which packets is going to transmit / declare final slot of packet / remove packet from system
+        # choose which packets is going to be transmitted / declare final slot of packet / remove packet from system
         for i in range(len(nodes)):
-            if trans[i] == -1 or not nodes[i].isBusy():  # because 0 is in use / node i have permission to transmit
+            if not trans[i] == -1 and nodes[i].isBusy():  # because 0 is in use / node i have permission to transmit
                 # through
                 # channel k (-1 ==> have no permission)
-                continue
-            indexOfPacket = 0
-            for j in nodes[i].packets:  # nodes --> buffer of every node
-                if j.nodeDest in B[trans[i]]:  # if the destination of the packet (of node i) is in the set B[k]
-                    endOfPacketTransmition(nodes[i], indexOfPacket,
-                                           currentSlot)  # the slot that packet leaves the system declared
-                    # print("\nPacket from Node ", i, " transmitted to Node",
-                    #      j.nodeDest, " through channel", trans[i], " delay of packet : ", j.slotFinal - j.slotInit)
+                indexOfPacket = 0
+                for j in nodes[i].packets:  # nodes --> buffer of every node
+                    if j.nodeDest in B[trans[i]]:  # if the destination of the packet (of node i) is in the set B[k]
+                        endOfPacketTransmition(nodes[i], indexOfPacket,
+                                               currentSlot)  # the slot that packet leaves the system declared
+                        print("\nPacket from Node ", i, " transmitted to Node",
+                              j.nodeDest, " through channel", trans[i], " delay of packet : ", j.delayOfTrans(), "\n")
 
-                    stat.howManySuccessfulTrans += 1
-                    stat.sumsOfDelays += j.slotFinal - j.slotInit
+                        stat.howManySuccessfulTrans += 1
+                        stat.sumsOfDelays += j.delayOfTrans()
 
-                    packetLeavesTheSys(nodes[i], indexOfPacket)
-                    break  # each node transmit once in a slot
-                indexOfPacket += 1
+                        packetLeavesTheSys(nodes[i], indexOfPacket)
+                        break  # each node transmit once in a slot
+                    indexOfPacket += 1
 
-    stat.addThroughputAndAvDelay(n)
+    stat.addThroughputAndAvDelay(currentSlot)
     stat.b.append(b)
     print("\nLoad  : ", b, "\n")
 
 stat.printResults(n)
-stat.plot()
-
-
+# stat.plot()

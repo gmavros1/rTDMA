@@ -17,8 +17,8 @@ class Buffer:
             return True
 
     # add generated packet in Buffer
-    def addPacket(self, si, nd):
-        self.packets.append(Packet(si, nd))
+    def addPacket(self, si, nd, ns):
+        self.packets.append(Packet(si, nd, ns))
 
     # packet leaves the system
     def removePacket(self, index):
