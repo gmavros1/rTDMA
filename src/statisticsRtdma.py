@@ -2,13 +2,13 @@ from pylab import *
 from numpy import *
 from tabulate import tabulate
 
+
 class Statistics:
     x = []
     y = []
     b = []
     sumsOfDelays = 0
     howManySuccessfulTrans = 0
-
 
     def __init__(self):
         self.x = []
@@ -17,18 +17,15 @@ class Statistics:
 
     def printResults(self, n):
         print(tabulate({"Throughput": self.x, "Delay": self.y, "System Load": self.b}))
-        #print("Average Delay : ", self.sumsOfDelays/self.howManySuccessfulTrans, "slots")
-        #print("TP : ", self.howManySuccessfulTrans/n)
-        #print("slots : ", n)
+        # print("Average Delay : ", self.sumsOfDelays/self.howManySuccessfulTrans, "slots")
+        # print("TP : ", self.howManySuccessfulTrans/n)
+        # print("slots : ", n)
 
-
-
-    def addThroughputAndAvDelay(self,n):
-        self.x.append(self.howManySuccessfulTrans/n)
-        self.y.append(self.sumsOfDelays/self.howManySuccessfulTrans)
-
-
-
+    def addThroughputAndAvDelay(self, n):
+        self.x.append(self.howManySuccessfulTrans / n)  # Αριθμός επιτυχημένων μεταδόσεων προς αριθμό slot που έτρεξε η
+        # προσομοίωση
+        self.y.append(self.sumsOfDelays / self.howManySuccessfulTrans)  # Άθροισμα delay προς αριθμό επιτυχημένων
+        # μεταδόσεων
 
     def plot(self):
         self.sort()
@@ -40,11 +37,10 @@ class Statistics:
         xlim(0, 4)
         show()
         with open('/home/gmavros/Desktop/Sxolhtemp/communication networks/project/rTDMA/src/test.txt', 'w') as r:
-            r.write("Throughput\t\t\tDelay\t\tSystem Load\n")
+            r.write("Throughput\t\t\tDelay\t\t\t\tSystem Load\n")
             for n in range(len(self.x)):
                 r.write('\n{}\t{}\t{}'.format(self.x[n], self.y[n], self.b[n]))
         r.close()
 
     def sort(self):
         self.x, self.y = zip(*sorted(zip(self.x, self.y)))
-

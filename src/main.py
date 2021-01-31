@@ -59,7 +59,7 @@ stat = Statistics()  # αντικείμενο της κλάσεις Statistics, 
 currentSlot = 0  # μεταβλητή που αυξάνεται σε κάθε slot
 
 # run some simulations with different system load
-n = 100000  # αριθμός slot που θα τρέξει κα θα δοκιμαστεί το rtdma για κάθε μια προσομοίωση
+n = 1000000  # αριθμός slot που θα τρέξει κα θα δοκιμαστεί το rtdma για κάθε μια προσομοίωση
 step = 8
 for bs in range(0, 72, step):  # μέσα σε αυτήν την επανάλυψη θα τρέξουν οι προσομοιώσεις οι οποίο θα έχουν system
     # load b που θα καθορίζεται απο την μεταβλητή bs (bs == 0, 8, 16, 24, 32, ..., 64)
@@ -70,7 +70,7 @@ for bs in range(0, 72, step):  # μέσα σε αυτήν την επανάλυ�
     d = 1 / (N - 1)  # transmission probability /
     b = 0  # system load /
     if bs != 0:
-        b = 0.1 * bs
+        b = 0.1 * bs # τιμές system load : 0.8, 1.6, 2.4...
     else:
         b = 0.1  # System load (στην πρώτη προσομοίωση βάζουμε load 0.1)
     li = b / N  # generation-packets probability /

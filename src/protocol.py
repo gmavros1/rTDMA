@@ -18,6 +18,7 @@ class Protocol:
 
         # 1. Set of Channels and A set
 
+        # Ένα αντίγραφο που πίνακα Α της main
         # Ak = A.copy() # We want A set to remain unchanged in the beginning of every slot
         Ak = []
         count = 0
@@ -27,13 +28,13 @@ class Protocol:
                 Ak[count].append(aaaa)
             count += 1
 
+        # Σύνολο καναλιών : [0, 1, 2, 3] στο παραδειγμά μας
         # Ω set
         channels = []
         for i in range(W):
             channels.append(i)  # [ channel0, channel1, ..., channeN-1 ]
 
-
-
+        # Υλοποίηση αλγορίθμου
         while len(channels) != 0:
             # 2. select a random chanel k and remove k from set channels
             k = channels.pop(random.randint(0, len(channels) - 1))
@@ -47,4 +48,4 @@ class Protocol:
                 if i in r:
                     r.remove(i)
 
-        return self.trans
+        return self.trans  # επιστρέφει το trans, στις θέσεις των κόμβων που δεν μεταδίδουν υπάρχει η τιμή 1
