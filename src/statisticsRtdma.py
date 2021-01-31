@@ -1,7 +1,6 @@
 from pylab import *
 from numpy import *
 from tabulate import tabulate
-from packet import Packet
 
 class Statistics:
     x = []
